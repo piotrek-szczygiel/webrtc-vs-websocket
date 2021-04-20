@@ -1,0 +1,31 @@
+<html>
+
+<head>
+    <title>WebRTC ping-pong</title>
+</head>
+<style>
+    .container {
+        background: rgb(148, 144, 144);
+        margin: 50px auto;
+        max-width: 80%;
+        text-align: center;
+        padding: 2%;
+    }
+
+</style>
+
+<body>
+
+    <div class="container">
+        <!--WebRTC related code-->
+        <button type="button" class="btn btn-primary" onclick='createOffer()'>Create Offer</button><br>
+        <!-- <input id="messageInput" type="text" class="form-control" placeholder="message"> -->
+        <button type="button" class="btn btn-primary" onclick='sendMessage()'>Send Ping</button>
+        <div id="results"></div>
+        <script src="ping.js"></script>
+        <!--WebRTC related code-->
+    </div>
+
+</body>
+
+</html>
