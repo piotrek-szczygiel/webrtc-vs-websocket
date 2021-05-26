@@ -7,19 +7,27 @@
     <title>Ping</title>
   </head>
   <body>
-    <button type="button" onclick="createOffer()">Create Offer</button>
+    <button type="button" onclick="rtcCreateOffer()">Crate Offer</button>
     <button type="button" onclick="sendMessage()">Send Message</button>
     <br /><br />
     <div id="log"></div>
+    <script src="webrtc.js"></script>
     <script>
       const log = document.getElementById("log");
-      function handleMessage(message, channel) {
+
+      function handleMessage(message) {
         const end = Date.now();
-        console.log("Received message", message);
+        console.debug("Received message", message);
         const [start, payload] = JSON.parse(message);
         log.innerHTML += `${end - start}ms<br />`;
       }
+
+      function sendMessage() {
+        const timestamp = Date.now();
+        const message = [timestamp, "A".repeat(64)];
+        rtcChannelSend(JSON.stringify(message));
+        console.debug("Message sent", message);
+      }
     </script>
-    <script src="webrtc.js"></script>
   </body>
 </html>
