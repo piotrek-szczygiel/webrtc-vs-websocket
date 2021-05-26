@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ping</title>
+  </head>
+  <body>
+    <script>
+      const log = document.getElementById("log");
+      function handleMessage(message, channel) {
+        const end = Date.now();
+        const [start, payload] = JSON.parse(message);
+        log.innerHTML += `${end - start}ms<br />`;
+      }
+    </script>
+    <script src="webrtc.js"></script>
+    <button type="button" onclick="createOffer()">Create Offer</button>
+    <button type="button" onclick="sendMessage()">Send Message</button>
+    <br /><br />
+    <div id="log"></div>
+  </body>
+</html>
