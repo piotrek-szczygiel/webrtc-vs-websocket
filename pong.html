@@ -7,18 +7,19 @@
     <title>Pong</title>
   </head>
   <body>
+    <button type="button" onclick="createOffer()">Create Offer</button>
+    <br /><br />
+    <div id="log"></div>
     <script>
       const log = document.getElementById("log");
       function handleMessage(message, channel) {
         const now = Date.now();
+        console.log("Received message", message);
         channel.send(message);
         const [start, payload] = JSON.parse(message);
         log.innerHTML += `Echoed message after ${now - start}ms<br />`;
       }
     </script>
     <script src="webrtc.js"></script>
-    <button type="button" onclick="createOffer()">Create Offer</button>
-    <br /><br />
-    <div id="log"></div>
   </body>
 </html>

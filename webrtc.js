@@ -1,81 +1,144 @@
-const ICE_CONFIG = {
-  iceServers: [
-    {
-      url: "stun:stun.szczygiel.dev",
-    },
-    {
-      urls: "turn:turn.szczygiel.dev?transport=udp",
-      credential: "ftj491q",
-      username: "piotr",
-    },
-    {
-      urls: "turn:turn.szczygiel.dev?transport=tcp",
-      credential: "ftj491q",
-      username: "piotr",
-    },
-  ],
+var conn = new WebSocket("ws://ws.szczygiel.dev");
+
+var peerConnection;
+var dataChannel;
+
+conn.onopen = function () {
+  console.log("Connected to the signaling server");
+  initialize();
 };
 
-const Event = Object.freeze({
-  CANDIDATE: 1,
-  OFFER: 2,
-  ANSWER: 3,
-});
-
-const rtc = new RTCPeerConnection(ICE_CONFIG);
-const server = new WebSocket("ws://szczygiel.dev:8888");
-
-server.onerror = (error) =>
-  console.error("Error connecting to signaling server", error);
-
-server.onopen = () => {
-  rtc.onicecandidate = (event) => {
-    if (event.candidate) {
-      server.send(JSON.stringify([Event.CANDIDATE, event.candidate]));
-    }
-  };
-
-  channel = rtc.createDataChannel("perf_channel", { reliable: true });
-  channel.onerror = (error) => console.error("Error on data channel", error);
-  channel.onclose = () => console.debug("Data channel closed");
-  channel.ondatachannel = (event) => (channel = event.channel);
-  channel.onmessage = (event) => {
-    handleMessage(event.data, channel);
-  };
+conn.onerror = function (error) {
+  console.log("conn error: ", error);
 };
 
-server.onmessage = (message) => {
-  console.debug("Received message", message);
-  const [event, data] = JSON.parse(message.data);
-  if (event === Event.CANDIDATE) {
-    rtc.addIceCandidate(new RTCIceCandidate(data));
-  } else if (event === Event.ANSWER) {
-    rtc.setRemoteDescription(new RTCSessionDescription(data));
-    console.debug("RTC Connection established successfully");
-  } else if (event === Event.OFFER) {
-    rtc.setRemoteDescription(new RTCSessionDescription(data));
-    rtc.createAnswer(
-      (answer) => {
-        rtc.setLocalDescription(answer);
-        server.send(JSON.stringify([Event.ANSWER, answer]));
-      },
-      (error) => console.error("Error creating an answer", error)
-    );
+conn.onmessage = function (msg) {
+  console.log("Got message", msg.data);
+  var content = JSON.parse(msg.data);
+  var data = content.data;
+  switch (content.event) {
+    // when somebody wants to call us
+    case "offer":
+      handleOffer(data);
+      break;
+    case "answer":
+      handleAnswer(data);
+      break;
+    // when a remote peer sends an ice candidate to us
+    case "candidate":
+      handleCandidate(data);
+      break;
+    default:
+      break;
   }
 };
 
+function send(message) {
+  conn.send(JSON.stringify(message));
+}
+
+function initialize() {
+  var configuration = {
+    iceServers: [
+      {
+        url: "stun:stun.szczygiel.dev",
+      },
+      {
+        urls: "turn:turn.szczygiel.dev?transport=udp",
+        credential: "ftj491q",
+        username: "piotr",
+      },
+      {
+        urls: "turn:turn.szczygiel.dev?transport=tcp",
+        credential: "ftj491q",
+        username: "piotr",
+      },
+    ],
+  };
+
+  peerConnection = new RTCPeerConnection(configuration);
+
+  // Setup ice handling
+  peerConnection.onicecandidate = function (event) {
+    if (event.candidate) {
+      send({
+        event: "candidate",
+        data: event.candidate,
+      });
+    }
+  };
+
+  // creating data channel
+  dataChannel = peerConnection.createDataChannel("dataChannel", {
+    reliable: true,
+  });
+
+  console.log(dataChannel);
+
+  dataChannel.onerror = function (error) {
+    console.log("Error occured on datachannel:", error);
+  };
+
+  // when we receive a message from the other peer, printing it on the console
+  dataChannel.onmessage = function (event) {
+    console.log("ON MESSAGE!", event);
+    handleMessage(event.data, dataChannel);
+  };
+
+  dataChannel.onclose = function () {
+    console.log("data channel is closed");
+  };
+
+  peerConnection.ondatachannel = function (event) {
+    dataChannel = event.channel;
+  };
+}
+
 function createOffer() {
-  rtc.createOffer(
-    (offer) => {
-      server.send(JSON.stringify([Event.OFFER, offer]));
-      rtc.setLocalDescription(offer);
+  peerConnection.createOffer(
+    function (offer) {
+      send({
+        event: "offer",
+        data: offer,
+      });
+      peerConnection.setLocalDescription(offer);
     },
-    (error) => console.error("Error creating an offer", error)
+    function (error) {
+      alert("Error creating an offer");
+    }
   );
+}
+
+function handleOffer(offer) {
+  peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+  // create and send an answer to an offer
+  peerConnection.createAnswer(
+    function (answer) {
+      peerConnection.setLocalDescription(answer);
+      send({
+        event: "answer",
+        data: answer,
+      });
+    },
+    function (error) {
+      alert("Error creating an answer");
+    }
+  );
+}
+
+function handleCandidate(candidate) {
+  peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+}
+
+function handleAnswer(answer) {
+  peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+  console.log("connection established successfully!!");
 }
 
 function sendMessage() {
   const timestamp = Date.now();
   const message = [timestamp, "A".repeat(1024)];
   dataChannel.send(JSON.stringify(message));
+  console.log("Message sent", message);
 }
