@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pong</title>
+  </head>
+  <body>
+    <button type="button" onclick="rtcCreateOffer()">Create Offer</button>
+    <br /><br />
+    <div id="log"></div>
+    <script src="webrtc.js"></script>
+    <script>
+      const log = document.getElementById("log");
+
+      function handleMessage(message) {
+        const now = Date.now();
+        rtcChannelSend(message);
+        const [start, payload] = JSON.parse(message);
+        console.log(`Echoed message after ${now - start}ms`);
+      }
+    </script>
+  </body>
+</html>

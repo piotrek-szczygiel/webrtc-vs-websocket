@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.0/dist/chart.min.js"></script>
+    <script src="webrtc.js"></script>
+    <script>
+      let chart = undefined;
+      let count = 0;
+
+      function handleMessage(message) {
+        const end = Date.now();
+        console.debug("Received message", message);
+        const [start, payload] = JSON.parse(message);
+        const latency = end - start;
+        console.info(`${latency}ms`);
+
+        chart.data.datasets[0].data.push(latency);
+        chart.data.labels.push("Caption" + count++);
+        chart.update();
+
+        setTimeout(sendMessage, 500);
+      }
+
+      function sendMessage() {
+        const timestamp = Date.now();
+        const message = [timestamp, "A".repeat(64)];
+        rtcChannelSend(JSON.stringify(message));
+      }
+
+      function initialize() {
+        const ctx = document.getElementById("chart").getContext("2d");
+        chart = new Chart(ctx, {
+          type: "line",
+          options: {
+            scales: {
+              x: {
+                ticks: {
+                  display: false,
+                },
+                grid: {
+                  display: false,
+                },
+              },
+            },
+          },
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Latency",
+                data: [],
+                fill: true,
+              },
+            ],
+          },
+        });
+      }
+    </script>
+    <title>Ping</title>
+  </head>
+  <body onload="initialize()">
+    <button type="button" onclick="rtcCreateOffer()">Create Offer</button>
+    <button type="button" onclick="sendMessage()">Start</button>
+    <div style="max-width: 80%; height: auto">
+      <canvas id="chart"></canvas>
+    </div>
+  </body>
+</html>
