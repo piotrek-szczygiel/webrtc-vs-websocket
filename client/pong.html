@@ -16,10 +16,9 @@
 
       function handleMessage(message) {
         const now = Date.now();
-        console.debug("Received message", message);
         rtcChannelSend(message);
         const [start, payload] = JSON.parse(message);
-        log.innerHTML += `Echoed message after ${now - start}ms<br />`;
+        console.log(`Echoed message after ${now - start}ms`);
       }
     </script>
   </body>
