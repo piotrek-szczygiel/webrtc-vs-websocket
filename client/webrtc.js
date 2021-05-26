@@ -22,45 +22,50 @@ const RtcEvent = {
   CANDIDATE: 3,
 };
 
-const rtcPeer = new RTCPeerConnection(ICE_CONFIG);
-let rtcChannel = rtcPeer.createDataChannel("channel");
+let rtcPeer = undefined;
+let rtcChannel = undefined;
+let rtcServer = undefined;
 
-const rtcServer = new WebSocket("ws://ws.szczygiel.dev/webrtc");
-rtcServer.onerror = (error) => console.log("Server error", error);
+function rtcInitialize() {
+  rtcPeer = new RTCPeerConnection(ICE_CONFIG);
+  rtcChannel = rtcPeer.createDataChannel("channel");
+  rtcServer = new WebSocket("ws://ws.szczygiel.dev/webrtc");
+  rtcServer.onerror = (error) => console.log("Server error", error);
 
-rtcServer.onmessage = (message) => {
-  console.debug("Got message", message.data);
-  const [event, data] = JSON.parse(message.data);
-  switch (event) {
-    case RtcEvent.OFFER:
-      rtcHandleOffer(data);
-      break;
-    case RtcEvent.ANSWER:
-      rtcHandleAnswer(data);
-      break;
-    case RtcEvent.CANDIDATE:
-      rtcHandleCandidate(data);
-      break;
-    default:
-      console.error("Unknown event", event);
-      break;
-  }
-};
-
-rtcServer.onopen = () => {
-  console.log("Connected to the signaling server");
-
-  rtcPeer.onicecandidate = (event) => {
-    if (event.candidate) {
-      rtcServer.send(JSON.stringify([RtcEvent.CANDIDATE, event.candidate]));
+  rtcServer.onmessage = (message) => {
+    console.debug("Got message", message.data);
+    const [event, data] = JSON.parse(message.data);
+    switch (event) {
+      case RtcEvent.OFFER:
+        rtcHandleOffer(data);
+        break;
+      case RtcEvent.ANSWER:
+        rtcHandleAnswer(data);
+        break;
+      case RtcEvent.CANDIDATE:
+        rtcHandleCandidate(data);
+        break;
+      default:
+        console.error("Unknown event", event);
+        break;
     }
   };
 
-  rtcChannel.onerror = (error) => console.log("Error on data channel", error);
-  rtcChannel.onclose = () => console.log("Data channel is closed");
-  rtcChannel.onmessage = (event) => handleMessage(event.data);
-  rtcPeer.ondatachannel = (event) => (rtcChannel = event.channel);
-};
+  rtcServer.onopen = () => {
+    console.log("Connected to the signaling server");
+
+    rtcPeer.onicecandidate = (event) => {
+      if (event.candidate) {
+        rtcServer.send(JSON.stringify([RtcEvent.CANDIDATE, event.candidate]));
+      }
+    };
+
+    rtcChannel.onerror = (error) => console.log("Error on data channel", error);
+    rtcChannel.onclose = () => console.log("Data channel is closed");
+    rtcChannel.onmessage = (event) => rtcHandleMessage(event.data);
+    rtcPeer.ondatachannel = (event) => (rtcChannel = event.channel);
+  };
+}
 
 function rtcHandleOffer(offer) {
   rtcPeer.setRemoteDescription(new RTCSessionDescription(offer));
@@ -81,6 +86,7 @@ function rtcHandleCandidate(candidate) {
 function rtcHandleAnswer(answer) {
   rtcPeer.setRemoteDescription(new RTCSessionDescription(answer));
   console.log("Connection established successfully!!");
+  rtcReady();
 }
 
 function rtcCreateOffer() {
@@ -93,6 +99,6 @@ function rtcCreateOffer() {
   );
 }
 
-function rtcChannelSend(data) {
+function rtcMessageSend(data) {
   rtcChannel.send(data);
 }

@@ -6,66 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.0/dist/chart.min.js"></script>
     <script src="webrtc.js"></script>
-    <script>
-      let chart = undefined;
-      let count = 0;
-
-      function handleMessage(message) {
-        const end = Date.now();
-        console.debug("Received message", message);
-        const [start, payload] = JSON.parse(message);
-        const latency = end - start;
-        console.info(`${latency}ms`);
-
-        chart.data.datasets[0].data.push(latency);
-        chart.data.labels.push("Caption" + count++);
-        chart.update();
-
-        setTimeout(sendMessage, 500);
-      }
-
-      function sendMessage() {
-        const timestamp = Date.now();
-        const message = [timestamp, "A".repeat(64)];
-        rtcChannelSend(JSON.stringify(message));
-      }
-
-      function initialize() {
-        const ctx = document.getElementById("chart").getContext("2d");
-        chart = new Chart(ctx, {
-          type: "line",
-          options: {
-            scales: {
-              x: {
-                ticks: {
-                  display: false,
-                },
-                grid: {
-                  display: false,
-                },
-              },
-            },
-          },
-          data: {
-            labels: [],
-            datasets: [
-              {
-                label: "Latency",
-                data: [],
-                fill: true,
-              },
-            ],
-          },
-        });
-      }
-    </script>
+    <script src="websocket.js"></script>
+    <script src="ping.js"></script>
     <title>Ping</title>
   </head>
   <body onload="initialize()">
-    <button type="button" onclick="rtcCreateOffer()">Create Offer</button>
-    <button type="button" onclick="sendMessage()">Start</button>
-    <div style="max-width: 80%; height: auto">
-      <canvas id="chart"></canvas>
+    <button type="button" onclick="rtcCreateOffer();">Create offer</button>
+    <button type="button" onclick="rtcSendPayload()">Start WebRTC</button>
+    <button type="button" onclick="clearTimeout(rtcTimeout)">
+      Stop WebRTC
+    </button>
+    <div id="rtcStatus" style="display: inline-block">WebRTC disconnected</div>
+    <div style="max-width: 40%">
+      <canvas id="rtcChart"></canvas>
+    </div>
+    <br />
+    <button type="button" onclick="wsSendPayload()">Start WebSocket</button>
+    <button type="button" onclick="clearTimeout(wsTimeout)">
+      Stop WebSocket
+    </button>
+    <div id="wsStatus" style="display: inline-block">
+      WebSocket disconnected
+    </div>
+    <div style="max-width: 40%">
+      <canvas id="wsChart"></canvas>
     </div>
   </body>
 </html>

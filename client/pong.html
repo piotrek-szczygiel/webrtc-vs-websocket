@@ -7,19 +7,9 @@
     <title>Pong</title>
   </head>
   <body>
-    <button type="button" onclick="rtcCreateOffer()">Create Offer</button>
-    <br /><br />
-    <div id="log"></div>
+    <button type="button" onclick="rtcCreateOffer();">Create offer</button>
     <script src="webrtc.js"></script>
-    <script>
-      const log = document.getElementById("log");
-
-      function handleMessage(message) {
-        const now = Date.now();
-        rtcChannelSend(message);
-        const [start, payload] = JSON.parse(message);
-        console.log(`Echoed message after ${now - start}ms`);
-      }
-    </script>
+    <script src="websocket.js"></script>
+    <script src="pong.js"></script>
   </body>
 </html>
