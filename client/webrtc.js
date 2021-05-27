@@ -29,7 +29,7 @@ let rtcServer = undefined;
 function rtcInitialize() {
   rtcPeer = new RTCPeerConnection(ICE_CONFIG);
   rtcChannel = rtcPeer.createDataChannel("channel");
-  rtcServer = new WebSocket("ws://ws.szczygiel.dev/webrtc");
+  rtcServer = new WebSocket("wss://ws.szczygiel.dev/webrtc");
   rtcServer.onerror = (error) => console.log("Server error", error);
 
   rtcServer.onmessage = (message) => {

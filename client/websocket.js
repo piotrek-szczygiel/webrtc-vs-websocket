@@ -1,7 +1,7 @@
 let server = undefined;
 
 function wsInitialize() {
-  server = new WebSocket("ws://ws.szczygiel.dev/websocket");
+  server = new WebSocket("wss://ws.szczygiel.dev/websocket");
   server.onerror = (error) => console.log("Server error", error);
   server.onopen = () => console.log("Connected to WebSocket server");
   server.onmessage = (message) => {
