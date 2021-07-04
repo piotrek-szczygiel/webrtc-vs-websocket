@@ -60,8 +60,8 @@ function rtcInitialize() {
       }
     };
 
-    rtcChannel.onerror = (error) => console.log("Error on data channel", error);
-    rtcChannel.onclose = () => console.log("Data channel is closed");
+    rtcChannel.onerror = (error) => { console.log("Error on data channel", error); rtcError(); }
+    rtcChannel.onclose = () => { console.log("Data channel is closed"); rtcClose(); }
     rtcChannel.onmessage = (event) => rtcHandleMessage(event.data);
     rtcPeer.ondatachannel = (event) => (rtcChannel = event.channel);
   };

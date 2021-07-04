@@ -1,25 +1,52 @@
-let rtcChart = undefined;
 let rtcStatus = undefined;
 let rtcAverage = undefined;
 let rtcTimeout = undefined;
 let rtcCount = 0;
 
-let wsChart = undefined;
 let wsStatus = undefined;
 let wsAverage = undefined;
 let wsTimeout = undefined;
 let wsCount = 0;
 
+let chart = undefined;
+
+function latencyColor(latency) {
+  latency /= 1.5;
+  latency = Math.min(latency, 100);
+  latency = Math.max(latency, 0);
+  latency = 100 - latency;
+
+  let r, g, b = 0;
+  if (latency < 50) {
+    r = 255;
+    g = Math.round(5.1 * latency);
+  }
+  else {
+    g = 255;
+    r = Math.round(510 - 5.10 * latency);
+  }
+  let h = r * 0x10000 + g * 0x100 + b * 0x1;
+  return '#' + ('000000' + h.toString(16)).slice(-6);
+}
+
 function rtcReady() {
-  rtcStatus.innerHTML = "WebRTC connected";
-  rtcStatus.style.backgroundColor = "green";
-  rtcAverage.style.backgroundColor = "pink";
+  rtcStatus.className = "dot active";
+}
+
+function rtcClose() {
+  rtcStatus.className = "dot inactive";
+}
+
+function rtcError() {
+  rtcStatus.className = "dot error";
 }
 
 function wsReady() {
-  wsStatus.innerHTML = "WebSocket connected";
-  wsStatus.style.backgroundColor = "green";
-  wsAverage.style.backgroundColor = "pink";
+  wsStatus.className = "dot active";
+}
+
+function wsError() {
+  wsStatus.className = "dot error";
 }
 
 function rtcSendPayload() {
@@ -33,18 +60,19 @@ function rtcHandleMessage(message) {
   const [start, payload] = JSON.parse(message);
   const latency = end - start;
 
-  rtcChart.data.datasets[0].data.push({
+  chart.data.datasets[0].data.push({
     x: Date.now(),
     y: latency
   });
 
-  rtcChart.update("quiet");
+  chart.update("quiet");
 
   let sum = 0;
-  for (let i = 0; i < rtcChart.data.datasets[0].data.length; ++i) sum += rtcChart.data.datasets[0].data[i].y;
+  for (let i = 0; i < chart.data.datasets[0].data.length; ++i) sum += chart.data.datasets[0].data[i].y;
 
-  avg = sum / rtcChart.data.datasets[0].data.length;
-  rtcAverage.innerHTML = Math.round(avg * 10) / 10;
+  avg = sum / chart.data.datasets[0].data.length;
+  rtcAverage.innerHTML = Math.round(avg * 10) / 10 + " ms";
+  rtcAverage.style.backgroundColor = latencyColor(avg);
 
   rtcTimeout = setTimeout(rtcSendPayload, 500);
 }
@@ -60,18 +88,19 @@ function wsHandleMessage(message) {
   const [start, payload] = JSON.parse(message);
   const latency = end - start;
 
-  wsChart.data.datasets[0].data.push({
+  chart.data.datasets[1].data.push({
     x: Date.now(),
     y: latency
   });
 
-  wsChart.update("quiet");
+  chart.update("quiet");
 
   let sum = 0;
-  for (let i = 0; i < wsChart.data.datasets[0].data.length; ++i) sum += wsChart.data.datasets[0].data[i].y;
+  for (let i = 0; i < chart.data.datasets[1].data.length; ++i) sum += chart.data.datasets[1].data[i].y;
 
-  avg = sum / wsChart.data.datasets[0].data.length;
-  wsAverage.innerHTML = Math.round(avg * 10) / 10;
+  avg = sum / chart.data.datasets[1].data.length;
+  wsAverage.innerHTML = Math.round(avg * 10) / 10 + " ms";
+  wsAverage.style.backgroundColor = latencyColor(avg);
 
   wsTimeout = setTimeout(wsSendPayload, 500);
 }
@@ -83,55 +112,43 @@ function initialize() {
   wsStatus = document.getElementById("wsStatus");
   wsAverage = document.getElementById("wsAverage");
 
-  Chart.defaults.set('plugins.streaming', {
-    duration: 20000
-  });
-
-  rtcChart = new Chart(document.getElementById("rtcChart"), {
+  chart = new Chart(document.getElementById("chart"), {
     type: "line",
     data: {
       datasets: [
         {
-          label: "WebRTC latency",
-          data: [],
+          label: "WebRTC",
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          borderColor: 'rgb(255, 99, 132)',
+          // borderDash: [8, 4],
+          cubicInterpolationMode: 'monotone',
           fill: true,
-          borderColor: "rgb(75, 192, 192)",
-          tension: 0.1,
+          data: []
+        },
+        {
+          label: "WebSocket",
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          borderColor: 'rgb(54, 162, 235)',
+          cubicInterpolationMode: 'monotone',
+          fill: true,
+          data: []
         }
       ]
     },
     options: {
+      plugins: {
+        title: {
+          display: true,
+          text: 'Comparison of WebRTC and WebSocket latency'
+        },
+      },
       scales: {
         x: {
           type: "realtime",
-          ticks: {
-            display: false
+          realtime: {
+            delay: 2000,
+            duration: 10000,
           },
-          grid: {
-            display: false
-          }
-        }
-      }
-    }
-  });
-
-  wsChart = new Chart(document.getElementById("wsChart"), {
-    type: "line",
-    data: {
-      datasets: [
-        {
-          label: "WebSocket latency",
-          data: [],
-          fill: true,
-          borderColor: "rgb(192, 192, 75)",
-          tension: 0.1,
-        }
-      ]
-    },
-    options: {
-      scales: {
-        x: {
-          type: "realtime",
           ticks: {
             display: false
           },

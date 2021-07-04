@@ -1,38 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@1.27.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
-    <script src="webrtc.js"></script>
-    <script src="websocket.js"></script>
-    <script src="ping.js"></script>
-    <title>Ping</title>
-  </head>
-  <body onload="initialize()">
-    <button type="button" onclick="rtcCreateOffer();">Create offer</button>
-    <button type="button" onclick="rtcSendPayload()">Start WebRTC</button>
-    <button type="button" onclick="clearTimeout(rtcTimeout)">
-      Stop WebRTC
-    </button>
-    <div id="rtcStatus" style="display: inline-block">WebRTC disconnected</div>
-    <div id="rtcAverage" style="display: inline-block"></div>
-    <div style="max-width: 40%">
-      <canvas id="rtcChart"></canvas>
-    </div>
-    <br />
-    <button type="button" onclick="wsSendPayload()">Start WebSocket</button>
-    <button type="button" onclick="clearTimeout(wsTimeout)">
-      Stop WebSocket
-    </button>
-    <div id="wsStatus" style="display: inline-block">WebSocket disconnected</div>
-    <div id="wsAverage" style="display: inline-block"></div>
-    <div style="max-width: 40%">
-      <canvas id="wsChart"></canvas>
-    </div>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@1.27.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
+  <script src="webrtc.js"></script>
+  <script src="websocket.js"></script>
+  <script src="ping.js"></script>
+  <title>Ping</title>
+  <style>
+    .dot {
+      height: 10px;
+      width: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .inactive {
+      background-color: #bbb;
+    }
+
+    .active {
+      background-color: #0b0;
+    }
+
+    .error {
+      background-color: #b00
+    }
+  </style>
+</head>
+
+<body onload="initialize()" style="background: #f2f2f2">
+  <table>
+    <tr>
+      <td><span id="rtcStatus" class="dot inactive"></span>&nbsp;<span>WebRTC</span></td>
+      <td><button type="button" onclick="rtcCreateOffer();">Create offer</button></td>
+      <td><button type="button" onclick="rtcSendPayload()">Start</button></td>
+      <td><button type="button" onclick="clearTimeout(rtcTimeout)">Stop</button></td>
+      <td>
+        <div id="rtcAverage" style="display: inline-block"></div>
+      </td>
+    </tr>
+    <tr>
+      <td><span id="wsStatus" class="dot inactive"></span>&nbsp;<span>WebSocket</span></td>
+      <td></td>
+      <td><button type="button" onclick="wsSendPayload()">Start</button></td>
+      <td><button type="button" onclick="clearTimeout(wsTimeout)">Stop</button></td>
+      <td>
+        <div id="wsAverage" style="display: inline-block"></div>
+      </td>
+    </tr>
+  </table>
+  <div style="margin: 0 auto; height:30vh; width:60vw"><canvas id="chart"></canvas></div>
+</body>
+
 </html>
