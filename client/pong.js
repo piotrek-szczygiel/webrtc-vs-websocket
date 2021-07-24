@@ -6,6 +6,16 @@ function wsReady() {
   console.log("WebSocket ready");
 }
 
+function rtcSetUp() {
+  let reliability = document.getElementById("reliability").checked;
+
+  if (reliability) {
+    rtcInitialize({ ordered: true, maxRetransmits: null });
+  } else {
+    rtcInitialize({ ordered: false, maxRetransmits: 0 });
+  }
+}
+
 function rtcHandleMessage(message) {
   const now = Date.now();
   rtcMessageSend(message);
@@ -20,5 +30,4 @@ function wsHandleMessage(message) {
   console.debug(`Echoed WebSocket message after ${now - start}ms`);
 }
 
-rtcInitialize();
 wsInitialize();

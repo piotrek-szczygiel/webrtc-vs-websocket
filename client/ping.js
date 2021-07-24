@@ -49,6 +49,16 @@ function wsError() {
   wsStatus.className = "dot error";
 }
 
+function rtcSetUp() {
+  let reliability = document.getElementById("reliability").checked;
+
+  if (reliability) {
+    rtcInitialize({});
+  } else {
+    rtcInitialize({ ordered: false, maxRetransmits: 0 });
+  }
+}
+
 function rtcSendPayload() {
   const timestamp = Date.now();
   const message = [timestamp, "A".repeat(64)];
@@ -160,6 +170,5 @@ function initialize() {
     }
   });
 
-  rtcInitialize();
   wsInitialize();
 }

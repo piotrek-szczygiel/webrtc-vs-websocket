@@ -39,6 +39,9 @@
   <table>
     <tr>
       <td><span id="rtcStatus" class="dot inactive"></span>&nbsp;<span>WebRTC</span></td>
+      <td><label for="reliability">Reliable: </label></td>
+      <td><input type="checkbox" id="reliability"></td>
+      <td><button type="button" onclick="rtcSetUp();">Initialize</button></td>
       <td><button type="button" onclick="rtcCreateOffer();">Create offer</button></td>
       <td><button type="button" onclick="rtcSendPayload()">Start</button></td>
       <td><button type="button" onclick="clearTimeout(rtcTimeout)">Stop</button></td>
@@ -48,6 +51,9 @@
     </tr>
     <tr>
       <td><span id="wsStatus" class="dot inactive"></span>&nbsp;<span>WebSocket</span></td>
+      <td></td>
+      <td></td>
+      <td></td>
       <td></td>
       <td><button type="button" onclick="wsSendPayload()">Start</button></td>
       <td><button type="button" onclick="clearTimeout(wsTimeout)">Stop</button></td>
