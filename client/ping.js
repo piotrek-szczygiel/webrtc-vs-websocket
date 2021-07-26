@@ -53,7 +53,7 @@ function rtcSetUp() {
   let reliability = document.getElementById("reliability").checked;
 
   if (reliability) {
-    rtcInitialize({});
+    rtcInitialize({ ordered: true, maxRetransmits: null });
   } else {
     rtcInitialize({ ordered: false, maxRetransmits: 0 });
   }
