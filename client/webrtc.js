@@ -20,7 +20,7 @@ function rtcInitialize(config) {
   console.log(config);
   rtcPeer = new RTCPeerConnection(ICE_CONFIG);
   rtcChannel = rtcPeer.createDataChannel("channel", config);
-  rtcServer = new WebSocket("wss://tactile.tk/webrtc");
+  rtcServer = new WebSocket("wss://ws.tactile.tk/webrtc");
   rtcServer.onerror = (error) => console.log("Server error", error);
 
   rtcServer.onmessage = (message) => {

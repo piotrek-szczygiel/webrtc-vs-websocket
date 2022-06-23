@@ -1,7 +1,7 @@
 let server = undefined;
 
 function wsInitialize() {
-  server = new WebSocket("wss://tactile.tk/websocket");
+  server = new WebSocket("wss://ws.tactile.tk/websocket");
   server.onerror = (error) => console.log("Server error", error);
   server.onopen = () => console.log("Connected to WebSocket server");
   server.onmessage = (message) => {
