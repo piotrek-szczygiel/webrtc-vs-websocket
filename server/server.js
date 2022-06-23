@@ -25,9 +25,7 @@ wss2.on("connection", (ws, req) => {
   );
   ws.on("message", (message) => {
     console.debug(`Received ${message.length} bytes from ${addr}`);
-    wss2.clients.forEach((client) => {
-      if (client !== ws) client.send(message);
-    });
+    ws.send(message);
   });
 });
 

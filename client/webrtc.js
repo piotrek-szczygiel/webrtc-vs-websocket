@@ -1,17 +1,7 @@
 const ICE_CONFIG = {
   iceServers: [
     {
-      url: "stun:stun.szczygiel.dev",
-    },
-    {
-      urls: "turn:turn.szczygiel.dev?transport=udp",
-      credential: "ftj491q",
-      username: "piotr",
-    },
-    {
-      urls: "turn:turn.szczygiel.dev?transport=tcp",
-      credential: "ftj491q",
-      username: "piotr",
+      url: "stun:stun.l.google.com:19302",
     },
   ],
 };
@@ -30,7 +20,7 @@ function rtcInitialize(config) {
   console.log(config);
   rtcPeer = new RTCPeerConnection(ICE_CONFIG);
   rtcChannel = rtcPeer.createDataChannel("channel", config);
-  rtcServer = new WebSocket("wss://ws.szczygiel.dev/webrtc");
+  rtcServer = new WebSocket("ws://165.22.16.178/webrtc");
   rtcServer.onerror = (error) => console.log("Server error", error);
 
   rtcServer.onmessage = (message) => {
