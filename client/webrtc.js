@@ -1,7 +1,17 @@
 const ICE_CONFIG = {
   iceServers: [
     {
-      url: "stun:stun.l.google.com:19302",
+      url: "stun:stun.tactile.tk",
+    },
+    {
+      urls: "turn:turn.tactile.tk?transport=udp",
+      credential: "turn123q",
+      username: "piotr",
+    },
+    {
+      urls: "turn:turn.tactile.tk?transport=tcp",
+      credential: "turn123q",
+      username: "piotr",
     },
   ],
 };
