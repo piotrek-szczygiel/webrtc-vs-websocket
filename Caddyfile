@@ -1,0 +1,8 @@
+tactile.tk {
+    root * ./client
+    file_server
+}
+
+ws.tactile.tk {
+    reverse_proxy localhost:8888
+}
