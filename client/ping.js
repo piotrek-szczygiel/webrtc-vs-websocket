@@ -71,7 +71,7 @@ function rtcHandleMessage(message) {
   const latency = end - start;
 
   chart.data.datasets[0].data.push({
-    x: performance.now(),
+    x: Date.now(),
     y: latency
   });
 
@@ -99,7 +99,7 @@ function wsHandleMessage(message) {
   const latency = end - start;
 
   chart.data.datasets[1].data.push({
-    x: performance.now(),
+    x: Date.now(),
     y: latency
   });
 
