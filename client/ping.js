@@ -60,18 +60,18 @@ function rtcSetUp() {
 }
 
 function rtcSendPayload() {
-  const timestamp = Date.now();
+  const timestamp = performance.now();
   const message = [timestamp, "A".repeat(64)];
   rtcMessageSend(JSON.stringify(message));
 }
 
 function rtcHandleMessage(message) {
-  const end = Date.now();
+  const end = performance.now();
   const [start, payload] = JSON.parse(message);
   const latency = end - start;
 
   chart.data.datasets[0].data.push({
-    x: Date.now(),
+    x: performance.now(),
     y: latency
   });
 
@@ -88,18 +88,18 @@ function rtcHandleMessage(message) {
 }
 
 function wsSendPayload() {
-  const timestamp = Date.now();
+  const timestamp = performance.now();
   const message = [timestamp, "A".repeat(64)];
   wsMessageSend(JSON.stringify(message));
 }
 
 function wsHandleMessage(message) {
-  const end = Date.now();
+  const end = performance.now();
   const [start, payload] = JSON.parse(message);
   const latency = end - start;
 
   chart.data.datasets[1].data.push({
-    x: Date.now(),
+    x: performance.now(),
     y: latency
   });
 
